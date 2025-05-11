@@ -11,14 +11,14 @@ export enum EIssueType {
 }
 
 export class Issue {
-    id: string;
-    type: EIssueType;
-    message?: string;
-    rawLogs?: string[];
-    stackTrace?: string[];
-    context: string[];
-    source?: string;
-    severity: string; // For backward compatibility
+    public id: string;
+    public type: EIssueType;
+    public message?: string;
+    public rawLogs?: string[];
+    public stackTrace?: string[];
+    public context: string[];
+    public source?: string;
+    public severity: string; // For backward compatibility
 
     /**
      * Create a new Issue
@@ -58,6 +58,10 @@ export class Issue {
 
     public addStacktraceLine(stacktrace: string): void {
         this.stackTrace!.push(stacktrace);
+    }
+
+    public setIssueType(type: EIssueType): void {
+        this.type = type;
     }
 
     /**

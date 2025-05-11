@@ -32,6 +32,7 @@ export class PuertsExceptionDetector implements IIssueDetector {
 
                 const stackKeywordIndex = line.indexOf(PUERTS_STACK_KEYWORD);
                 if (stackKeywordIndex >= 0) {
+                    this.issue.setIssueType(EIssueType.Exception);
                     this.issue.addStacktraceLine(line.substring(stackKeywordIndex));
                 }
 
@@ -49,6 +50,14 @@ export class PuertsExceptionDetector implements IIssueDetector {
                 return EIssueDetectorState.Finished;
             }
             else {
+                const stackKeywordIndex = line.indexOf(PUERTS_STACK_KEYWORD);
+                if (stackKeywordIndex >= 0) {
+                    if (this.issue) {
+                        this.issue.setIssueType(EIssueType.Exception);
+                        this.issue.addStacktraceLine(line.substring(stackKeywordIndex + PUERTS_STACK_KEYWORD.length + 1));
+                    }
+                }
+
                 return EIssueDetectorState.Activated;
             }
         }
@@ -56,16 +65,20 @@ export class PuertsExceptionDetector implements IIssueDetector {
     }
 
     public pickIssue(): Issue {
-        console.log("===>> pickIssue");
         if (!this.issue) {
             console.error("issue not exist");
             throw Error("issue not exist");
         }
         else {
 
-            const issue = this.issue;
+            let issue = this.issue;
             this.issue = undefined;
             this.state = EIssueDetectorState.None;
+
+            if (issue.stackTrace && issue.stackTrace.length > 0){
+                const msg = issue.stackTrace.join('\n');
+                console.log(`stacktrace:\n${msg}`);
+            }
 
             return issue;
         }
@@ -73,11 +86,11 @@ export class PuertsExceptionDetector implements IIssueDetector {
     }
 
     private getMessageFromFirstLogLine(line: string): string {
-        const msgIndex = line.indexOf(PUERTS_ERROR_KEYWORD) + PUERTS_ERROR_KEYWORD.length + PUERTS_DEMO_PTR.length;
+        const msgIndex = line.indexOf(PUERTS_ERROR_KEYWORD) + PUERTS_ERROR_KEYWORD.length + PUERTS_DEMO_PTR.length + 2;
 
         const msg = line.substring(msgIndex);
 
-        console.log(`getMessageFromFirstLogLine:${msg}`);
+        // console.log(`getMessageFromFirstLogLine:${msg}`);
 
         return msg;
     }
